@@ -1,7 +1,11 @@
 package frontend;
 
+import backend.Graph;
+import backend.GraphW;
+import backend.Vertex;
 import frontend.Nodes.Edge;
 import frontend.Nodes.Node;
+
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -30,6 +34,8 @@ public class GraphPanel extends JComponent{
 
     private Point mousePt = new Point(ConstParametres.WEIGHT / 2, ConstParametres.HEIGHT / 2);
     private Rectangle mouseRect = new Rectangle();
+    private static Graph theGraph = new Graph();
+    private static GraphW theGraphW = new GraphW();
 
     public GraphPanel() {
         createFrame();
@@ -83,9 +89,10 @@ public class GraphPanel extends JComponent{
         private Action connect = new ConnectAction("Connect");
         private Action delete = new DeleteAction("Delete");
         private Action random = new RandomAction("Random");
+        private Action dfs = new CalculateAction("CALCULATE");
         private JButton defaultButton = new JButton(newNode);
         private JComboBox kindCombo = new JComboBox();
-        private ColorIcon nodeColor = new ColorIcon(Color.pink);
+        private ColorIcon nodeColor = new ColorIcon(Color.MAGENTA);
         private JPopupMenu popup = new JPopupMenu();
 
         public ControlPanel() {
@@ -113,6 +120,7 @@ public class GraphPanel extends JComponent{
             this.add(new JLabel(ConstParametres.SIZE_LABEL_NAME));
             this.add(jsNodeSize);
             this.add(new JButton(random)); // random action
+            this.add(new JButton(dfs));
 
             // POPUP MENU
             popup.add(new JMenuItem(newNode)); // newNode action
@@ -220,7 +228,26 @@ public class GraphPanel extends JComponent{
             Node n = new Node(p, ConstParametres.radiusCanChanged, color, kind);
             n.setSelected(true);
             nodes.add(n);
+            theGraph.addVertex(n.getId());
+            theGraphW.addVertex(n.getId());
+            System.out.println("New node -> " + n.getId());
             repaint();
+        }
+    }
+
+    private class CalculateAction extends AbstractAction {
+        public CalculateAction(String name) {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            System.out.println("\nDFS: ");
+            theGraph.dfs();
+            System.out.println("\nBFS: ");
+            theGraph.bfs();
+            System.out.println("\nDiykstra: ");
+            theGraphW.path();
         }
     }
 
@@ -233,6 +260,7 @@ public class GraphPanel extends JComponent{
         public void actionPerformed(ActionEvent e) {
             nodes.clear();
             edges.clear();
+            Node.resetId();
             repaint();
         }
     }
@@ -268,7 +296,11 @@ public class GraphPanel extends JComponent{
                 for (int i = 0; i < selected.size() - 1; ++i) {
                     Node n1 = selected.get(i);
                     Node n2 = selected.get(i + 1);
-                    edges.add(new Edge(n1, n2));
+                    Edge edge = new Edge(n1, n2);
+                    edges.add(edge);
+                    theGraph.addEdge(n1.getId() - 1, n2.getId() - 1);
+                    theGraphW.addEdge(n1.getId() - 1, n2.getId() - 1, edge.getWe());
+                    System.out.println("From " + n1.getId() + ", To " + n2.getId() + " weight -> " + edge.getWe());
                 }
             }
             repaint();

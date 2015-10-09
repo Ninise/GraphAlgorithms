@@ -18,6 +18,9 @@ public class Node {
     private boolean selected = false;
     private Rectangle b = new Rectangle();
 
+    public static int id = 0;
+    private int id_local;
+
     /**
      * Construct a new node.
      */
@@ -27,6 +30,18 @@ public class Node {
         this.color = color;
         this.kind = kind;
         setBoundary(b);
+        this.id_local = ++id;
+    }
+
+    /**
+     * Reset ID
+     */
+    public static void resetId() {
+        id = 0;
+    }
+
+    public int getId() {
+        return id_local;
     }
 
     /**
@@ -52,6 +67,7 @@ public class Node {
             g.setColor(Color.darkGray);
             g.drawRect(b.x, b.y, b.width, b.height);
         }
+        g.drawString(String.valueOf(id_local), b.x, b.y);
     }
 
     /**
